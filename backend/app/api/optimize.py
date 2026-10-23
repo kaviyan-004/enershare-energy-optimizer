@@ -499,7 +499,7 @@ async def get_run(run_id: str, session: Session = Depends(get_session)):
 async def get_kpi_summary(session: Session = Depends(get_session)):
     """Return dashboard KPI overview card metrics."""
     site = session.exec(select(SiteConfig)).first()
-    site_name = site.name if site else "Demo MSME Site"
+    site_name = site.name if site else "Demo Commercial Facility"
 
     # Get latest optimization run
     latest_run = session.exec(

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 10
 
     # Demo site defaults
-    demo_site_name: str = "Demo MSME Site"
+    demo_site_name: str = "Demo Commercial Facility"
     demo_solar_capacity_kw: float = 50.0
     demo_battery_capacity_kwh: float = 100.0
 

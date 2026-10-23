@@ -35,7 +35,7 @@ class Dataset(SQLModel, table=True):
 
 class SiteConfig(SQLModel, table=True):
     id: str = Field(default_factory=gen_uuid, primary_key=True)
-    name: str = "Demo MSME Site"
+    name: str = "Demo Commercial Facility"
     timezone: str = "Asia/Kolkata"
     currency: str = "INR"
     solar_capacity_kw: float = 50.0

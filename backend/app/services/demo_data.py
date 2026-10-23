@@ -1,6 +1,6 @@
 """
 Demo data generator for EnerShare AI.
-Produces a deterministic, realistic 30-day MSME energy dataset.
+Produces a deterministic, realistic 30-day commercial facility energy dataset.
 """
 import numpy as np
 import pandas as pd
@@ -26,7 +26,7 @@ def _solar_curve(hour: float, capacity_kw: float = 50.0) -> float:
 
 
 def _demand_curve(hour: int, day_of_week: int, base_kw: float = 30.0) -> float:
-    """MSME demand profile: higher during working hours Mon-Sat."""
+    """Facility demand profile: higher during working hours Mon-Sat."""
     is_weekday = day_of_week < 6  # 0=Monday
     if not is_weekday:
         base_kw *= 0.3  # Minimal weekend demand

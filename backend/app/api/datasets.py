@@ -34,7 +34,7 @@ async def get_demo_data(days: int = 7, session: Session = Depends(get_session)):
     if not existing:
         full_df = generate_demo_dataset(days=30)
         ds = Dataset(
-            name="Demo MSME Site — 30 Days",
+            name="Demo Commercial Site — 30 Days",
             source="demo",
             row_count=len(full_df),
             start_timestamp=full_df["timestamp"].iloc[0].to_pydatetime(),

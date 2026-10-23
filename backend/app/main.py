@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
         site = session.exec(select(SiteConfig)).first()
         if not site:
             site = SiteConfig(
-                name="Demo MSME Precision Foundry",
+                name="Demo Commercial Precision Facility",
                 timezone="Asia/Kolkata",
                 currency="INR",
                 solar_capacity_kw=50.0,
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
         if not demo_ds:
             df = generate_demo_dataset(days=30)
             demo_ds = Dataset(
-                name="Demo 30-Day MSME Solar & Demand Profile",
+                name="Demo 30-Day Solar & Demand Profile",
                 source="demo",
                 row_count=len(df),
                 start_timestamp=df["timestamp"].iloc[0].to_pydatetime(),

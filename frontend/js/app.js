@@ -90,7 +90,7 @@ function populateConfigForm(cfg) {
     if (el) el.value = val;
   };
 
-  setVal('cfg-site-name', cfg.name || 'Demo MSME Site');
+  setVal('cfg-site-name', cfg.name || 'Demo Commercial Facility');
   setVal('cfg-solar-cap', cfg.solar_capacity_kw || 50);
   setVal('cfg-bat-cap', cfg.battery?.capacity_kwh || 100);
   setVal('cfg-bat-min-soc', cfg.battery?.min_soc_pct || 20);
@@ -319,7 +319,7 @@ async function saveConfigForm(e) {
   };
 
   const payload = {
-    name: document.getElementById('cfg-site-name')?.value || 'Demo MSME Site',
+    name: document.getElementById('cfg-site-name')?.value || 'Demo Commercial Facility',
     solar_capacity_kw: getVal('cfg-solar-cap', 50),
     battery: {
       capacity_kwh: getVal('cfg-bat-cap', 100),
