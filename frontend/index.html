@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnerShare AI — Renewable Energy Optimization & Smart Storage Platform</title>
+  <meta name="description" content="AI-Powered Renewable Energy Forecasting and Constrained Storage Optimization Platform.">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- ── App Header ─────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="logo-symbol">⚡</div>
+      <div>
+        <h1 class="brand-title">EnerShare AI</h1>
+        <div class="brand-tagline">Predict. Store. Share. Optimize.</div>
+      </div>
+    </div>
+
+    <div class="system-badge">
+      <span class="system-pill">Enterprise Edition</span>
+      <span>Energy Management System</span>
+      <span style="color:var(--text-muted)">•</span>
+      <span>v1.0.0</span>
+    </div>
+
+    <div class="system-status-indicator">
+      <span class="pulse-dot"></span>
+      <span id="backend-status-text">Connecting to Backend...</span>
+    </div>
+  </header>
+
+  <!-- ── Navigation Bar ─────────────────────────────────────────────────────── -->
+  <nav class="nav-tabs-bar">
+    <button class="nav-tab-btn active" data-tab="tab-dashboard">📊 Dashboard</button>
+    <button class="nav-tab-btn" data-tab="tab-forecast">🔮 AI Forecasting (XGBoost)</button>
+    <button class="nav-tab-btn" data-tab="tab-optimization">⚡ Constrained Optimization</button>
+    <button class="nav-tab-btn" data-tab="tab-scenarios">⚖️ Scenario Comparison</button>
+    <button class="nav-tab-btn" data-tab="tab-config">⚙️ Site & Asset Config</button>
+    <button class="nav-tab-btn" data-tab="tab-reports">📑 Reports & Audit</button>
+  </nav>
+
+  <!-- ── Main Content Area ──────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- ── TAB 1: EXECUTIVE DASHBOARD ───────────────────────────────────────── -->
+    <div id="tab-dashboard" class="tab-pane active">
+
+      <!-- Recommendation Banner -->
+      <div class="recommendation-banner">
+        <div class="rec-icon">⚡</div>
+        <div class="rec-text">
+          <div class="rec-title">EnerShare AI Optimization Active</div>
+          <div class="rec-desc" id="kpi-rec-text">Evaluating optimal energy dispatch and storage actions.</div>
+        </div>
+        <button class="btn btn-primary" id="btn-run-optimization">Run Optimization</button>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Solar PV Generation</div>
+          <div class="kpi-value"><span id="kpi-solar-gen">—</span> <span class="kpi-unit">kWh</span></div>
+          <div class="kpi-subtext">24h Scheduled Horizon</div>
+        </div>
+        <div class="kpi-card cyan">
+          <div class="kpi-label">Site Facility Demand</div>
+          <div class="kpi-value"><span id="kpi-demand">—</span> <span class="kpi-unit">kWh</span></div>
+          <div class="kpi-subtext">Factory Load Profile</div>
+        </div>
+        <div class="kpi-card battery">
+          <div class="kpi-label">Battery SOC (State)</div>
+          <div class="kpi-value"><span id="kpi-battery-soc">—</span></div>
+          <div class="kpi-subtext">Within 20% – 95% Safe Bounds</div>
+        </div>
+        <div class="kpi-card grid-card">
+          <div class="kpi-label">Grid Import</div>
+          <div class="kpi-value"><span id="kpi-grid-import">—</span> <span class="kpi-unit">kWh</span></div>
+          <div class="kpi-subtext">Minimized Off-Peak Tariffs</div>
+        </div>
+        <div class="kpi-card cost">
+          <div class="kpi-label">Operating Energy Cost</div>
+          <div class="kpi-value"><span id="kpi-cost">—</span></div>
+          <div class="kpi-subtext">Estimated Net Electricity Cost</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Renewable Utilization</div>
+          <div class="kpi-value"><span id="kpi-utilization">—</span></div>
+          <div class="kpi-subtext">Clean Self-Consumption</div>
+        </div>
+      </div>
+
+      <!-- Real-time Energy Balance Chart -->
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">Real-Time Energy Balance & Dispatch Flow</h2>
+            <div class="card-subtitle">Solar Generation, Site Demand, Battery Charge/Discharge & Grid Exchange across 24 Intervals</div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <label class="form-label" style="margin-bottom:0;">Preset:</label>
+            <select class="form-select" id="scenario-select" style="width: auto; padding: 0.35rem 0.65rem;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+        <div class="chart-box-lg">
+          <canvas id="dashboard-energy-chart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── TAB 2: AI FORECASTING HUB ────────────────────────────────────────── -->
+    <div id="tab-forecast" class="tab-pane">
+      <div class="grid-2-1" style="margin-bottom: 1.5rem;">
+        <!-- Control Panel -->
+        <div class="glass-card">
+          <div class="card-header-flex">
+            <div>
+              <h2 class="card-title">Machine Learning Forecaster</h2>
+              <div class="card-subtitle">Trains chronological non-leaking ML models on past solar and load time-series.</div>
+            </div>
+          </div>
+          <div class="grid-3" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Model Engine</label>
+              <select class="form-select" id="forecast-model-select">
+                <option value="xgboost" selected>XGBoost (Extreme Gradient Boost)</option>
+                <option value="gradient_boost">Scikit-Learn Gradient Boosting</option>
+                <option value="persistence">Persistence Baseline (Lag-24h)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Metric</label>
+              <select class="form-select" id="forecast-target-select">
+                <option value="generation" selected>Solar PV Generation (kWh)</option>
+                <option value="demand">Site Demand Profile (kWh)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Horizon (Hours)</label>
+              <input type="number" class="form-input" id="forecast-horizon-input" value="24" min="1" max="72">
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-run-forecast">Train & Forecast 24h Horizon</button>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="glass-card">
+          <h2 class="card-title" style="margin-bottom:1rem;">Model Validation Metrics</h2>
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+              <span style="color:var(--text-secondary)">Active Model:</span>
+              <strong id="metric-model-name">XGBOOST</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+              <span style="color:var(--text-secondary)">Mean Absolute Error (MAE):</span>
+              <strong id="metric-mae" style="color:var(--accent-solar)">—</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">
+              <span style="color:var(--text-secondary)">Root Mean Squared Error (RMSE):</span>
+              <strong id="metric-rmse">—</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding-bottom:0.5rem;">
+              <span style="color:var(--text-secondary)">MAPE Error Rate:</span>
+              <strong id="metric-mape">—</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Forecast Chart -->
+      <div class="glass-card">
+        <h2 class="card-title" style="margin-bottom: 0.5rem;">24-Hour AI Prediction vs Ground Truth</h2>
+        <div class="card-subtitle" style="margin-bottom: 1rem;">Comparison of predictive model outputs vs benchmark measurements.</div>
+        <div class="chart-box-lg">
+          <canvas id="forecast-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 3: CONSTRAINED OPTIMIZATION & SCHEDULE ────────────────────────── -->
+    <div id="tab-optimization" class="tab-pane">
+      <div class="grid-2" style="margin-bottom: 1.5rem;">
+        <div class="glass-card">
+          <h2 class="card-title" style="margin-bottom:0.5rem;">Dispatch Energy Flow</h2>
+          <div class="card-subtitle" style="margin-bottom:1rem;">LP Optimized power flow (Solar, Storage, Grid)</div>
+          <div class="chart-box">
+            <canvas id="optimization-flow-chart"></canvas>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h2 class="card-title" style="margin-bottom:0.5rem;">Battery SOC Trajectory (%)</h2>
+          <div class="card-subtitle" style="margin-bottom:1rem;">Stored energy tracking within 20% min & 95% max safety boundaries</div>
+          <div class="chart-box">
+            <canvas id="optimization-soc-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 24-hour Interval Dispatch Schedule Table -->
+      <div class="glass-card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">24-Hour Interval Dispatch Schedule</h2>
+            <div class="card-subtitle">Granular interval decisions strictly governed by conservation of energy and operational constraints.</div>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <a class="btn btn-secondary btn-sm" id="btn-export-csv" href="#" download>Export CSV</a>
+            <a class="btn btn-secondary btn-sm" id="btn-export-json" href="#" download>Export JSON</a>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Interval</th>
+                <th>Solar PV (kWh)</th>
+                <th>Demand (kWh)</th>
+                <th>Direct Solar (kWh)</th>
+                <th>Battery Charge</th>
+                <th>Battery Discharge</th>
+                <th>Battery SOC</th>
+                <th>Grid Import</th>
+                <th>Grid Export</th>
+                <th>Curtailed</th>
+                <th>Cost (₹)</th>
+                <th>Recommended Action</th>
+              </tr>
+            </thead>
+            <tbody id="dispatch-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 4: SCENARIO COMPARISON ────────────────────────────────────────── -->
+    <div id="tab-scenarios" class="tab-pane">
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">Scenario Simulation & Baseline Benchmarking</h2>
+            <div class="card-subtitle">Quantify exact rupee savings and import reductions versus heuristic priority baseline dispatch.</div>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <select class="form-select" id="sim-scenario-select" style="width: auto;">
+              <!-- Populated dynamically -->
+            </select>
+            <button class="btn btn-primary" id="btn-run-sim">Run Comparative Simulation</button>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top:1.25rem;">
+          <div class="stat-diff-box">
+            <div class="stat-diff-value" id="diff-cost-saving">₹0.00</div>
+            <div class="stat-diff-label">Operating Cost Savings (₹)</div>
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;" id="diff-cost-saving-pct">—</div>
+          </div>
+          <div class="stat-diff-box" style="border-top: 3px solid var(--accent-cyan);">
+            <div class="stat-diff-value" style="color:var(--accent-cyan)" id="diff-import-red">0.0 kWh</div>
+            <div class="stat-diff-label">Grid Import Reduction</div>
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Peak Grid Demand Avoided</div>
+          </div>
+          <div class="stat-diff-box" style="border-top: 3px solid var(--accent-battery);">
+            <div class="stat-diff-value" style="color:var(--accent-battery)" id="diff-util-gain">0.0%</div>
+            <div class="stat-diff-label">Renewable Self-Consumption Improvement</div>
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Clean Energy Utilization</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="glass-card">
+          <h2 class="card-title" style="margin-bottom:1rem;">Visual Comparison (Baseline vs Optimized)</h2>
+          <div class="chart-box">
+            <canvas id="comparison-bar-chart"></canvas>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h2 class="card-title" style="margin-bottom:1rem;">Decision Matrix Breakdown</h2>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Performance Metric</th>
+                  <th>Baseline</th>
+                  <th>EnerShare AI</th>
+                  <th>Delta Improvement</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-table-body">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 5: SITE & ASSET CONFIGURATION ────────────────────────────────── -->
+    <div id="tab-config" class="tab-pane">
+      <form id="config-form">
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <!-- Renewable & Battery -->
+          <div class="glass-card">
+            <h2 class="card-title" style="margin-bottom: 1rem;">Facility & Storage Parameters</h2>
+            <div class="form-group">
+              <label class="form-label">Facility / Site Name</label>
+              <input type="text" class="form-input" id="cfg-site-name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rooftop Solar PV Capacity (kW)</label>
+              <input type="number" class="form-input" id="cfg-solar-cap" step="0.5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Battery Storage Capacity (kWh)</label>
+              <input type="number" class="form-input" id="cfg-bat-cap" step="1" required>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Min Safe SOC (%)</label>
+                <input type="number" class="form-input" id="cfg-bat-min-soc" min="5" max="40" step="1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Safe SOC (%)</label>
+                <input type="number" class="form-input" id="cfg-bat-max-soc" min="70" max="100" step="1" required>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Initial SOC (%)</label>
+                <input type="number" class="form-input" id="cfg-bat-init-soc" min="10" max="95" step="1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Charge / Discharge (kW)</label>
+                <input type="number" class="form-input" id="cfg-bat-power" step="1" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid & Tariffs -->
+          <div class="glass-card">
+            <h2 class="card-title" style="margin-bottom: 1rem;">Grid Interconnection & Tariffs</h2>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Grid Import Limit (kW)</label>
+                <input type="number" class="form-input" id="cfg-grid-import" step="1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Grid Export Limit (kW)</label>
+                <input type="number" class="form-input" id="cfg-grid-export" step="1" required>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:0.5rem; margin-bottom:1.5rem;">
+              <label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;">
+                <input type="checkbox" id="cfg-export-permitted" style="width:18px; height:18px;">
+                <span style="font-weight:600; font-size:0.88rem;">Grid Export Permitted (Net-Metering)</span>
+              </label>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+                When disabled, excess generation is stored in battery or curtailed to prevent grid backfeed.
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Import Base Tariff (₹/kWh)</label>
+                <input type="number" class="form-input" id="cfg-tariff-import" step="0.1" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Export Feed-in Tariff (₹/kWh)</label>
+                <input type="number" class="form-input" id="cfg-tariff-export" step="0.1" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem; width:100%;">
+              Save Configuration & Update Optimizer
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── TAB 6: REPORTS & AUDIT ───────────────────────────────────────────── -->
+    <div id="tab-reports" class="tab-pane">
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <h2 class="card-title" style="margin-bottom:0.5rem;">Executive Summary & System Audit</h2>
+        <div class="card-subtitle" style="margin-bottom:1.5rem;">Operational verification summary and dispatch performance metrics.</div>
+
+        <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.75rem; margin-bottom:1.5rem; box-shadow:var(--shadow-card);">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Platform:</span>
+            <strong>EnerShare AI</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Deployment Mode:</span>
+            <strong>Production / Autonomous EMS</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Evaluated Scenario:</span>
+            <strong id="rep-scenario-name">Standard 24h Factory Horizon</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Operating Cost:</span>
+            <strong id="rep-cost" style="color:var(--accent-solar)">₹—</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Grid Import:</span>
+            <strong id="rep-import">—</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:0.75rem;">
+            <span>Clean Utilization:</span>
+            <strong id="rep-util">—</strong>
+          </div>
+          <div style="margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--border-color);">
+            <div style="font-size:0.78rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.35rem;">Algorithm Summary & Takeaway</div>
+            <p id="rep-takeaway" style="font-size:0.9rem; color:var(--text-primary); line-height:1.6;">
+              Loading executive summary...
+            </p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1rem;">
+          <button class="btn btn-primary" onclick="window.print()">Print Executive Brief</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+  <footer class="app-footer">
+    EnerShare AI • Intelligent Renewable Energy Exchange & Smart Storage Optimization Platform
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Main JavaScript App Entrypoint -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
